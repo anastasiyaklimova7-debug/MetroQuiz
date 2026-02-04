@@ -46,7 +46,6 @@
             filter: brightness(0.5) contrast(1.1);
         }
 
-        /* Adjusted position to -100px as requested */
         #display-board-container {
             position: absolute;
             top: -100px; 
@@ -74,18 +73,16 @@
             position: relative;
             z-index: 2;
             color: #facc15; 
-            font-family: 'Roboto', sans-serif; /* Changed to Roboto for better readability */
+            font-family: 'Roboto', sans-serif;
             font-weight: 900;
             font-size: 3.8rem;
             text-shadow: 0 0 15px rgba(250, 204, 21, 0.8), 0 0 5px rgba(0,0,0,0.5); 
             background: transparent;
             padding: 0;
-            /* Raised even higher (reduced margin-top) */
             margin-top: 15px; 
             letter-spacing: 4px;
         }
 
-        /* Train Container */
         #train-wrapper {
             position: absolute;
             width: 1100px; 
@@ -106,7 +103,6 @@
             display: block;
         }
 
-        /* UI Layer */
         #ui-layer {
             position: absolute;
             top: 0;
@@ -121,7 +117,6 @@
             align-items: center;
         }
 
-        /* Industrial Style Quiz Panel */
         #quiz-panel {
             pointer-events: auto;
             background: rgba(15, 15, 20, 0.9); 
@@ -138,7 +133,6 @@
             display: flex;
             flex-direction: column;
             gap: 25px;
-            /* Raised another 150px higher (110px - 150px = -40px) */
             margin-top: -40px; 
             border: 2px solid rgba(250, 204, 21, 0.4); 
         }
@@ -174,7 +168,6 @@
             }
         }
 
-        /* Option buttons as glowing station signs */
         .btn-option {
             background: #12121a;
             border: 1px solid #4a5568;
@@ -236,6 +229,9 @@
             transition: all 0.3s;
             text-transform: uppercase;
             letter-spacing: 1px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
         .btn-start:hover {
@@ -305,11 +301,11 @@
             SCORE: <span id="current-score" class="text-white">0</span> | TRAINS: <span id="current-count" class="text-white">0</span>/<span id="total-count" class="text-white">0</span>
         </div>
 
-        <!-- Start Screen - Pushed down slightly -->
+        <!-- Start Screen -->
         <div id="start-screen" class="flex flex-col items-center" style="margin-top: 150px;">
             <h1 class="text-6xl md:text-8xl text-yellow-400 font-black mb-8 text-center tracking-tighter" style="text-shadow: 6px 6px 0px #000;">METRO QUIZ</h1>
             <button class="btn-start" onclick="startGame()">
-                <i class="fas fa-train mr-3"></i> Start Shift
+                <i class="fas fa-play mr-3"></i> Start
             </button>
         </div>
 
@@ -333,7 +329,8 @@
             
             <div class="results-wrapper text-center">
                 <div class="flex justify-center">
-                     <button class="btn-start" onclick="location.reload()">
+                     <!-- Modified button: now calls resetGame() instead of reloading -->
+                     <button class="btn-start" onclick="resetGame()">
                         <i class="fas fa-redo mr-2"></i> Restart
                     </button>
                 </div>
@@ -343,7 +340,6 @@
 </div>
 
 <script>
-    // --- Responsive World Scaling ---
     const worldEl = document.getElementById('world');
     const WORLD_W = 1920;
     const WORLD_H = 1080;
@@ -358,7 +354,6 @@
     window.addEventListener('resize', resizeWorld);
     resizeWorld();
 
-    // --- Configuration ---
     const gameNumbers = [100, 32, 29, 47, 51, 68, 93, 77, 84, 38];
     const trainImages = [
         "https://i.postimg.cc/qvpmWjWq/Gemini_Generated_Image_del838del838del8.png",
@@ -401,6 +396,10 @@
 
     function init() {
         trainImages.forEach(src => { const img = new Image(); img.src = src; });
+        prepareQueue();
+    }
+
+    function prepareQueue() {
         queue = [...gameNumbers];
         shuffleArray(queue);
         totalCountEl.textContent = queue.length;
@@ -415,6 +414,18 @@
 
     function startGame() {
         startScreen.classList.add('hidden');
+        spawnTrain();
+    }
+
+    // New Function to restart without page reload
+    function resetGame() {
+        endScreen.classList.add('hidden');
+        currentIndex = 0;
+        score = 0;
+        currentScoreEl.textContent = "0";
+        currentCountEl.textContent = "0";
+        isTransitioning = false;
+        prepareQueue(); // Shuffle again for a new order
         spawnTrain();
     }
 
